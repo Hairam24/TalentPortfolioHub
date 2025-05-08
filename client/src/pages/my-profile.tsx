@@ -3,12 +3,31 @@ import { Helmet } from "react-helmet";
 import ProfileCard from "@/components/profile/profile-card";
 import TeamOverview from "@/components/profile/team-overview";
 import { UserProfile } from "@/lib/types";
-import { db, initializeFirebase } from "@/lib/firebase";
-import { collection, doc, getDoc } from "firebase/firestore";
+import { db, initializeFirebase, seedDemoData } from "@/lib/firebase";
+import { collection, doc, getDoc, setDoc } from "firebase/firestore";
+import { Button } from "@/components/ui/button";
 
 const MyProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [seeding, setSeeding] = useState(false);
+  
+  const handleSeedData = async () => {
+    try {
+      setSeeding(true);
+      const result = await seedDemoData();
+      if (result) {
+        alert("Demo data seeded successfully!");
+      } else {
+        alert("Failed to seed demo data. Check console for details.");
+      }
+    } catch (error) {
+      console.error("Error seeding demo data:", error);
+      alert("An error occurred while seeding demo data.");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -19,7 +38,8 @@ const MyProfile = () => {
         if (db) {
           // In a real application, you would use authentication to get the current user's ID
           // For now, we're using a hardcoded ID for the demo
-          const profileRef = doc(db, "users", "currentUser");
+          const usersCollection = collection(db, "users");
+          const profileRef = doc(usersCollection, "currentUser");
           const profileSnap = await getDoc(profileRef);
           
           if (profileSnap.exists()) {
@@ -47,14 +67,13 @@ const MyProfile = () => {
             };
             setProfile(defaultProfile);
             
-            // Optionally, you can create this profile in Firebase for future use
-            // This is commented out for now, but you can enable it if needed
-            // try {
-            //   const usersCollection = collection(db, "users");
-            //   await setDoc(doc(usersCollection, "currentUser"), defaultProfile);
-            // } catch (err) {
-            //   console.error("Error creating default profile:", err);
-            // }
+            // Create this profile in Firebase for future use
+            try {
+              await setDoc(doc(usersCollection, "currentUser"), defaultProfile);
+              console.log("Default profile saved to Firebase");
+            } catch (err) {
+              console.error("Error creating default profile:", err);
+            }
           }
         } else {
           // If Firebase is not available, use default profile
@@ -150,6 +169,21 @@ const MyProfile = () => {
 
         <ProfileCard profile={profile} />
         <TeamOverview />
+        
+        <div className="mt-8 border-t pt-6">
+          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-3">Data Management</h3>
+          <Button 
+            onClick={handleSeedData} 
+            disabled={seeding}
+            variant="outline"
+            className="mr-2"
+          >
+            {seeding ? "Seeding Data..." : "Seed Demo Data"}
+          </Button>
+          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            This will populate your Firebase database with sample works, talents and projects for demo purposes.
+          </p>
+        </div>
       </div>
     </>
   );
