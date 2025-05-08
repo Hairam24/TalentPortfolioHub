@@ -3,11 +3,31 @@ import { Helmet } from "react-helmet";
 import WorkGrid from "@/components/work/work-grid";
 import WorkFilters from "@/components/work/work-filters";
 import AddWorkDialog from "@/components/work/add-work-dialog";
+import { Button } from "@/components/ui/button";
+import { seedDemoData } from "@/lib/firebase";
 
 const Showcase = () => {
   const [category, setCategory] = useState("");
   const [tag, setTag] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [seeding, setSeeding] = useState(false);
+  
+  const handleSeedData = async () => {
+    try {
+      setSeeding(true);
+      const result = await seedDemoData();
+      if (result) {
+        alert("Demo data seeded successfully! Refresh the page to see the changes.");
+      } else {
+        alert("Failed to seed demo data. Check console for details.");
+      }
+    } catch (error) {
+      console.error("Error seeding demo data:", error);
+      alert("An error occurred while seeding demo data.");
+    } finally {
+      setSeeding(false);
+    }
+  };
 
   const handleCategoryChange = (value: string) => {
     setCategory(value);
@@ -24,9 +44,9 @@ const Showcase = () => {
   return (
     <>
       <Helmet>
-        <title>Work Showcase - Profile1</title>
+        <title>Work Showcase - CreativePulse</title>
         <meta name="description" content="Browse our collection of creative work from talented freelancers including graphics, videos, animations, and more." />
-        <meta property="og:title" content="Work Showcase - Profile1" />
+        <meta property="og:title" content="Work Showcase - CreativePulse" />
         <meta property="og:description" content="Discover the portfolio of creative work from our network of talented freelancers." />
       </Helmet>
 
@@ -37,7 +57,18 @@ const Showcase = () => {
             <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">Browse creative work from our talented network</p>
           </div>
 
-          <AddWorkDialog />
+          <div className="flex items-center gap-2 mt-4 md:mt-0">
+            <Button
+              onClick={handleSeedData}
+              disabled={seeding}
+              variant="outline"
+              size="sm"
+              className="hidden md:flex"
+            >
+              {seeding ? "Seeding..." : "Seed Demo Data"}
+            </Button>
+            <AddWorkDialog />
+          </div>
         </div>
 
         <WorkFilters 
