@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
         <div className="md:flex md:items-center md:justify-between">
           <div className="flex justify-center md:justify-start">
-            <span className="text-xl font-bold text-primary-600 dark:text-primary-400 font-accent">Profile1</span>
+            <span className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-accent tracking-tight">CreativePulse</span>
           </div>
           <div className="mt-8 md:mt-0 flex justify-center md:justify-end space-x-6">
             <a href="#" className="text-gray-400 hover:text-gray-500">
@@ -50,7 +50,7 @@ const Footer = () => {
             </Link>
           </div>
           <p className="mt-8 text-base text-gray-400 md:mt-0 md:order-1">
-            &copy; 2023 Profile1, Inc. All rights reserved.
+            &copy; 2023 CreativePulse, Inc. All rights reserved.
           </p>
         </div>
       </div>

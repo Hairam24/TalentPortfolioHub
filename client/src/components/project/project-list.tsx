@@ -37,11 +37,10 @@ const ProjectList = ({ status, assignee, client }: ProjectListProps) => {
             const querySnapshot = await getDocs(q);
             
             querySnapshot.forEach((doc) => {
-              const projectData = doc.data() as Project;
               projectList.push({
                 id: doc.id,
-                ...projectData,
-              });
+                ...doc.data()
+              } as Project);
             });
           } catch (firebaseError) {
             console.error("Error fetching from Firebase:", firebaseError);

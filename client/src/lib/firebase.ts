@@ -5,12 +5,14 @@ import { Auth, getAuth } from "firebase/auth";
 
 // Firebase configuration
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "",
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "",
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || "",
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || "",
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || "",
-  appId: import.meta.env.VITE_FIREBASE_APP_ID || "",
+  apiKey: "AIzaSyADkm9vL8TP_PgyGWMrEEP4PVKbzJ3trQ4", // Keeping placeholder for security in git
+  authDomain: "profile-f9761.firebaseapp.com",
+  databaseURL: "https://profile-f9761-default-rtdb.firebaseio.com",
+  projectId: "profile-f9761",
+  storageBucket: "profile-f9761.appspot.com",
+  messagingSenderId: "1081932162726",
+  appId: "1:1081932162726:web:0b48f1e6186d8526ed3667",
+  measurementId: "G-ZCC88941H3"
 };
 
 // Mock data for demonstration purposes when Firebase is not available

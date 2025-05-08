@@ -33,7 +33,7 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider defaultTheme="light" storageKey="profile1-theme">
+      <ThemeProvider defaultTheme="light" storageKey="creativepulse-theme">
         <TooltipProvider>
           <Toaster />
           <Router />

@@ -80,9 +80,9 @@ const MyProfile = () => {
   return (
     <>
       <Helmet>
-        <title>My Profile - Profile1</title>
+        <title>My Profile - CreativePulse</title>
         <meta name="description" content="Manage your personal profile and view your team's overview and availability." />
-        <meta property="og:title" content="My Profile - Profile1" />
+        <meta property="og:title" content="My Profile - CreativePulse" />
         <meta property="og:description" content="Access your profile information and manage your team of talented freelancers." />
       </Helmet>
 

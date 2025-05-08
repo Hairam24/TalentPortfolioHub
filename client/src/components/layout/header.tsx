@@ -22,7 +22,7 @@ const Header = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <div className="flex-shrink-0 flex items-center">
-              <span className="text-2xl font-bold text-primary-600 dark:text-primary-400 font-accent">Profile1</span>
+              <span className="text-2xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 font-accent tracking-tight">CreativePulse</span>
             </div>
             <nav className="hidden sm:ml-6 sm:flex sm:space-x-8" aria-label="Main Navigation">
               {navLinks.map((link) => (
