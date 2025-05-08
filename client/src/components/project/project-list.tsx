@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ProjectCard from "./project-card";
 import { Project } from "@/lib/types";
-import { db, mockProjectData } from "@/lib/firebase";
+import { db, mockProjectData, initializeFirebase } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 interface ProjectListProps {
@@ -20,34 +20,44 @@ const ProjectList = ({ status, assignee, client }: ProjectListProps) => {
       try {
         let projectList: Project[] = [];
         
+        // Initialize Firebase
+        const { db } = initializeFirebase();
+        
         // Try to fetch from Firebase if db is available
         if (db) {
           try {
             const projectsCollection = collection(db, "projects");
-            let q = query(projectsCollection, orderBy("dueDate", "asc"));
+            let projectQuery = query(projectsCollection, orderBy("dueDate", "asc"));
             
             if (status && status !== "all") {
-              q = query(q, where("status", "==", status));
+              projectQuery = query(projectQuery, where("status", "==", status));
             }
             
             if (client && client !== "all") {
-              q = query(q, where("client", "==", client));
+              projectQuery = query(projectQuery, where("client", "==", client));
             }
             
-            const querySnapshot = await getDocs(q);
+            const querySnapshot = await getDocs(projectQuery);
             
-            querySnapshot.forEach((doc) => {
-              projectList.push({
-                id: doc.id,
-                ...doc.data()
-              } as Project);
-            });
+            if (!querySnapshot.empty) {
+              querySnapshot.forEach((doc) => {
+                projectList.push({
+                  id: doc.id,
+                  ...doc.data()
+                } as Project);
+              });
+              console.log(`Found ${projectList.length} projects in Firebase`);
+            } else {
+              console.log("No projects found in Firebase, using mock data");
+              projectList = [...mockProjectData];
+            }
           } catch (firebaseError) {
             console.error("Error fetching from Firebase:", firebaseError);
             // Fall back to mock data if Firebase query fails
             projectList = [...mockProjectData];
           }
         } else {
+          console.log("Firebase db not available, using mock data");
           // Use mock data if db is not available
           projectList = [...mockProjectData];
         }

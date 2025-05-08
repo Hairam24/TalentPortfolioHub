@@ -3,7 +3,7 @@ import WorkCard from "./work-card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { WorkItem } from "@/lib/types";
-import { db, mockWorkData } from "@/lib/firebase";
+import { db, mockWorkData, initializeFirebase } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 
 interface WorkGridProps {
@@ -25,34 +25,44 @@ const WorkGrid = ({ category, tag, searchTerm }: WorkGridProps) => {
       try {
         let workItems: WorkItem[] = [];
         
+        // Initialize Firebase
+        const { db } = initializeFirebase();
+        
         // Try to fetch from Firebase if db is available
         if (db) {
           try {
             const worksCollection = collection(db, "works");
-            let q = query(worksCollection, orderBy("createdAt", "desc"), limit(itemsPerPage));
+            let workQuery = query(worksCollection, orderBy("createdAt", "desc"), limit(itemsPerPage));
             
             if (category && category !== "all") {
-              q = query(q, where("category", "==", category));
+              workQuery = query(workQuery, where("category", "==", category));
             }
             
             if (tag) {
-              q = query(q, where("tags", "array-contains", tag));
+              workQuery = query(workQuery, where("tags", "array-contains", tag));
             }
             
-            const querySnapshot = await getDocs(q);
+            const querySnapshot = await getDocs(workQuery);
             
-            querySnapshot.forEach((doc) => {
-              workItems.push({
-                id: doc.id,
-                ...doc.data(),
-              } as WorkItem);
-            });
+            if (!querySnapshot.empty) {
+              querySnapshot.forEach((doc) => {
+                workItems.push({
+                  id: doc.id,
+                  ...doc.data(),
+                } as WorkItem);
+              });
+              console.log(`Found ${workItems.length} works in Firebase`);
+            } else {
+              console.log("No works found in Firebase, using mock data");
+              workItems = [...mockWorkData];
+            }
           } catch (firebaseError) {
             console.error("Error fetching from Firebase:", firebaseError);
             // Fall back to mock data if Firebase query fails
             workItems = [...mockWorkData];
           }
         } else {
+          console.log("Firebase db not available, using mock data");
           // Use mock data if db is not available
           workItems = [...mockWorkData];
         }

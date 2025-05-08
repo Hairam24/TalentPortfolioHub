@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import TalentCard from "./talent-card";
 import { Button } from "@/components/ui/button";
 import { TalentProfile } from "@/lib/types";
-import { db, mockTalentData } from "@/lib/firebase";
+import { db, mockTalentData, initializeFirebase } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 interface TalentGridProps {
@@ -23,34 +23,44 @@ const TalentGrid = ({ role, skill, availability, searchTerm }: TalentGridProps) 
       try {
         let talentProfiles: TalentProfile[] = [];
         
+        // Initialize Firebase
+        const { db } = initializeFirebase();
+        
         // Try to fetch from Firebase if db is available
         if (db) {
           try {
             const talentsCollection = collection(db, "talents");
-            let q = query(talentsCollection, orderBy("rating", "desc"));
+            let talentQuery = query(talentsCollection, orderBy("rating", "desc"));
             
             if (role && role !== "all") {
-              q = query(q, where("role", "==", role));
+              talentQuery = query(talentQuery, where("role", "==", role));
             }
             
             if (availability && availability !== "all") {
-              q = query(q, where("availability", "==", availability));
+              talentQuery = query(talentQuery, where("availability", "==", availability));
             }
             
-            const querySnapshot = await getDocs(q);
+            const querySnapshot = await getDocs(talentQuery);
             
-            querySnapshot.forEach((doc) => {
-              talentProfiles.push({
-                id: doc.id,
-                ...doc.data(),
-              } as TalentProfile);
-            });
+            if (!querySnapshot.empty) {
+              querySnapshot.forEach((doc) => {
+                talentProfiles.push({
+                  id: doc.id,
+                  ...doc.data(),
+                } as TalentProfile);
+              });
+              console.log(`Found ${talentProfiles.length} talent profiles in Firebase`);
+            } else {
+              console.log("No talent profiles found in Firebase, using mock data");
+              talentProfiles = [...mockTalentData];
+            }
           } catch (firebaseError) {
             console.error("Error fetching from Firebase:", firebaseError);
             // Fall back to mock data if Firebase query fails
             talentProfiles = [...mockTalentData];
           }
         } else {
+          console.log("Firebase db not available, using mock data");
           // Use mock data if db is not available
           talentProfiles = [...mockTalentData];
         }
