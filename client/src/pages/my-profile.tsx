@@ -3,8 +3,8 @@ import { Helmet } from "react-helmet";
 import ProfileCard from "@/components/profile/profile-card";
 import TeamOverview from "@/components/profile/team-overview";
 import { UserProfile } from "@/lib/types";
-import { db } from "@/lib/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { db, initializeFirebase } from "@/lib/firebase";
+import { collection, doc, getDoc } from "firebase/firestore";
 
 const MyProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -13,25 +13,61 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        // In a real application, you would use authentication to get the current user's ID
-        // For now, we're using a hardcoded ID for the demo
-        const profileRef = doc(db, "users", "currentUser");
-        const profileSnap = await getDoc(profileRef);
+        // Initialize Firebase
+        const { db } = initializeFirebase();
         
-        if (profileSnap.exists()) {
-          setProfile(profileSnap.data() as UserProfile);
+        if (db) {
+          // In a real application, you would use authentication to get the current user's ID
+          // For now, we're using a hardcoded ID for the demo
+          const profileRef = doc(db, "users", "currentUser");
+          const profileSnap = await getDoc(profileRef);
+          
+          if (profileSnap.exists()) {
+            setProfile(profileSnap.data() as UserProfile);
+          } else {
+            // If profile doesn't exist yet, use default profile
+            const defaultProfile = {
+              id: "currentUser",
+              name: "Jessica Thompson",
+              role: "Creative Director & Talent Manager",
+              bio: "Creative director with 8+ years of experience managing teams of designers, animators, and content creators. Passionate about connecting talented professionals with exciting projects and delivering exceptional results for clients.",
+              avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&h=256&q=80",
+              email: "jessica@creativepulse.com",
+              phone: "(555) 123-4567",
+              location: "New York, NY",
+              website: "www.creativepulse.com",
+              skills: [
+                "Project Management",
+                "Team Leadership",
+                "Client Relations",
+                "Brand Strategy",
+                "Content Direction",
+                "Talent Acquisition"
+              ]
+            };
+            setProfile(defaultProfile);
+            
+            // Optionally, you can create this profile in Firebase for future use
+            // This is commented out for now, but you can enable it if needed
+            // try {
+            //   const usersCollection = collection(db, "users");
+            //   await setDoc(doc(usersCollection, "currentUser"), defaultProfile);
+            // } catch (err) {
+            //   console.error("Error creating default profile:", err);
+            // }
+          }
         } else {
-          // If profile doesn't exist yet, use default profile
+          // If Firebase is not available, use default profile
           setProfile({
             id: "currentUser",
             name: "Jessica Thompson",
             role: "Creative Director & Talent Manager",
             bio: "Creative director with 8+ years of experience managing teams of designers, animators, and content creators. Passionate about connecting talented professionals with exciting projects and delivering exceptional results for clients.",
             avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&h=256&q=80",
-            email: "jessica@profile1.com",
+            email: "jessica@creativepulse.com",
             phone: "(555) 123-4567",
             location: "New York, NY",
-            website: "www.profile1.com",
+            website: "www.creativepulse.com",
             skills: [
               "Project Management",
               "Team Leadership",
@@ -44,6 +80,26 @@ const MyProfile = () => {
         }
       } catch (error) {
         console.error("Error fetching profile:", error);
+        // If error, use default profile
+        setProfile({
+          id: "currentUser",
+          name: "Jessica Thompson",
+          role: "Creative Director & Talent Manager",
+          bio: "Creative director with 8+ years of experience managing teams of designers, animators, and content creators. Passionate about connecting talented professionals with exciting projects and delivering exceptional results for clients.",
+          avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?ixlib=rb-1.2.1&auto=format&fit=crop&w=256&h=256&q=80",
+          email: "jessica@creativepulse.com",
+          phone: "(555) 123-4567",
+          location: "New York, NY",
+          website: "www.creativepulse.com",
+          skills: [
+            "Project Management",
+            "Team Leadership",
+            "Client Relations",
+            "Brand Strategy",
+            "Content Direction",
+            "Talent Acquisition"
+          ]
+        });
       } finally {
         setLoading(false);
       }

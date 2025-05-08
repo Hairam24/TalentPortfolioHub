@@ -1,5 +1,6 @@
 import { FirebaseApp, initializeApp } from "firebase/app";
 import { Firestore, getFirestore } from "firebase/firestore";
+import { addDoc, collection, getDocs, serverTimestamp, doc, getDoc } from "firebase/firestore";
 import { FirebaseStorage, getStorage } from "firebase/storage";
 import { Auth, getAuth } from "firebase/auth";
 
@@ -330,9 +331,70 @@ export function initializeFirebase() {
 // Export Firebase services
 export { app, db, storage, auth };
 
+// Firestore functions already imported at the top of the file
+
 // A function to create demo data if needed for development
 export async function seedDemoData() {
-  // This function would be used to seed the database with demo data
-  // It would only be called in development mode and if specifically requested
-  console.log("Seeding demo data functionality is available but not automatically executed");
+  if (!db) {
+    console.error('Firebase not initialized, cannot seed data');
+    return false;
+  }
+
+  try {
+    // Add work items
+    const worksCollection = collection(db, "works");
+    const worksSnapshot = await getDocs(worksCollection);
+    
+    if (worksSnapshot.empty) {
+      console.log('Seeding works data...');
+      for (const work of mockWorkData) {
+        await addDoc(worksCollection, {
+          ...work,
+          createdAt: serverTimestamp()
+        });
+      }
+      console.log('Works data seeded successfully');
+    } else {
+      console.log('Works collection already has data, skipping seed');
+    }
+
+    // Add talent profiles
+    const talentsCollection = collection(db, "talents");
+    const talentsSnapshot = await getDocs(talentsCollection);
+    
+    if (talentsSnapshot.empty) {
+      console.log('Seeding talents data...');
+      for (const talent of mockTalentData) {
+        await addDoc(talentsCollection, {
+          ...talent,
+          createdAt: serverTimestamp()
+        });
+      }
+      console.log('Talents data seeded successfully');
+    } else {
+      console.log('Talents collection already has data, skipping seed');
+    }
+
+    // Add projects
+    const projectsCollection = collection(db, "projects");
+    const projectsSnapshot = await getDocs(projectsCollection);
+    
+    if (projectsSnapshot.empty) {
+      console.log('Seeding projects data...');
+      for (const project of mockProjectData) {
+        await addDoc(projectsCollection, {
+          ...project,
+          createdAt: serverTimestamp()
+        });
+      }
+      console.log('Projects data seeded successfully');
+    } else {
+      console.log('Projects collection already has data, skipping seed');
+    }
+
+    return true;
+  } catch (error) {
+    console.error('Error seeding demo data:', error);
+    return false;
+  }
 }
