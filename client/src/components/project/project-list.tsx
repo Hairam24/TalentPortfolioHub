@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import ProjectCard from "./project-card";
 import { Project } from "@/lib/types";
-import { db } from "@/lib/firebase";
+import { db, mockProjectData } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 interface ProjectListProps {
@@ -18,38 +18,63 @@ const ProjectList = ({ status, assignee, client }: ProjectListProps) => {
     const fetchProjects = async () => {
       setLoading(true);
       try {
-        let q = query(collection(db, "projects"), orderBy("dueDate", "asc"));
+        let projectList: Project[] = [];
         
-        if (status && status !== "All Projects") {
-          q = query(q, where("status", "==", status));
+        // Try to fetch from Firebase if db is available
+        if (db) {
+          try {
+            const projectsCollection = collection(db, "projects");
+            let q = query(projectsCollection, orderBy("dueDate", "asc"));
+            
+            if (status && status !== "all") {
+              q = query(q, where("status", "==", status));
+            }
+            
+            if (client && client !== "all") {
+              q = query(q, where("client", "==", client));
+            }
+            
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach((doc) => {
+              const projectData = doc.data() as Project;
+              projectList.push({
+                id: doc.id,
+                ...projectData,
+              });
+            });
+          } catch (firebaseError) {
+            console.error("Error fetching from Firebase:", firebaseError);
+            // Fall back to mock data if Firebase query fails
+            projectList = [...mockProjectData];
+          }
+        } else {
+          // Use mock data if db is not available
+          projectList = [...mockProjectData];
         }
         
-        if (client && client !== "All Clients") {
-          q = query(q, where("client", "==", client));
+        // Apply filters to mock data if needed
+        if (projectList.length > 0 && projectList[0].id.startsWith('proj')) {
+          if (status && status !== "all") {
+            projectList = projectList.filter(project => project.status === status);
+          }
+          
+          if (client && client !== "all") {
+            projectList = projectList.filter(project => project.client === client);
+          }
         }
-        
-        const querySnapshot = await getDocs(q);
-        const projectList: Project[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          const projectData = doc.data() as Project;
-          projectList.push({
-            id: doc.id,
-            ...projectData,
-          });
-        });
         
         // Filter by assignee locally if needed
-        if (assignee && assignee !== "All Team Members") {
-          const filteredProjects = projectList.filter((project) =>
+        if (assignee && assignee !== "all") {
+          projectList = projectList.filter((project) =>
             project.team.some((member) => member.id === assignee)
           );
-          setProjects(filteredProjects);
-        } else {
-          setProjects(projectList);
         }
+        
+        setProjects(projectList);
       } catch (error) {
         console.error("Error fetching projects:", error);
+        setProjects([]);
       } finally {
         setLoading(false);
       }

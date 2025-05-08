@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import TalentCard from "./talent-card";
 import { Button } from "@/components/ui/button";
 import { TalentProfile } from "@/lib/types";
-import { db } from "@/lib/firebase";
+import { db, mockTalentData } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy } from "firebase/firestore";
 
 interface TalentGridProps {
@@ -21,25 +21,50 @@ const TalentGrid = ({ role, skill, availability, searchTerm }: TalentGridProps) 
     const fetchProfiles = async () => {
       setLoading(true);
       try {
-        let q = query(collection(db, "talents"), orderBy("rating", "desc"));
+        let talentProfiles: TalentProfile[] = [];
         
-        if (role && role !== "All Roles") {
-          q = query(q, where("role", "==", role));
+        // Try to fetch from Firebase if db is available
+        if (db) {
+          try {
+            const talentsCollection = collection(db, "talents");
+            let q = query(talentsCollection, orderBy("rating", "desc"));
+            
+            if (role && role !== "all") {
+              q = query(q, where("role", "==", role));
+            }
+            
+            if (availability && availability !== "all") {
+              q = query(q, where("availability", "==", availability));
+            }
+            
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach((doc) => {
+              talentProfiles.push({
+                id: doc.id,
+                ...doc.data(),
+              } as TalentProfile);
+            });
+          } catch (firebaseError) {
+            console.error("Error fetching from Firebase:", firebaseError);
+            // Fall back to mock data if Firebase query fails
+            talentProfiles = [...mockTalentData];
+          }
+        } else {
+          // Use mock data if db is not available
+          talentProfiles = [...mockTalentData];
         }
         
-        if (availability && availability !== "All Availability") {
-          q = query(q, where("availability", "==", availability));
+        // Apply filters to mock data if needed
+        if (talentProfiles.length > 0) {
+          if (role && role !== "all") {
+            talentProfiles = talentProfiles.filter(profile => profile.role === role);
+          }
+          
+          if (availability && availability !== "all") {
+            talentProfiles = talentProfiles.filter(profile => profile.availability === availability);
+          }
         }
-        
-        const querySnapshot = await getDocs(q);
-        const talentProfiles: TalentProfile[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          talentProfiles.push({
-            id: doc.id,
-            ...doc.data(),
-          } as TalentProfile);
-        });
         
         // Filter by search term and skills locally
         let filteredProfiles = talentProfiles;
@@ -62,6 +87,7 @@ const TalentGrid = ({ role, skill, availability, searchTerm }: TalentGridProps) 
         setProfiles(filteredProfiles);
       } catch (error) {
         console.error("Error fetching talent profiles:", error);
+        setProfiles([]);
       } finally {
         setLoading(false);
       }
