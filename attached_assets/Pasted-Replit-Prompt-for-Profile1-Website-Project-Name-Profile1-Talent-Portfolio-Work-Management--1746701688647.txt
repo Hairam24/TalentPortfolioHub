@@ -1,0 +1,152 @@
+Replit Prompt for Profile1 Website
+
+> Project Name: Profile1 — Talent Portfolio & Work Management
+Stack: React (frontend) + Tailwind CSS (for design) + Firebase or Supabase (for backend and media storage)
+
+
+
+
+---
+
+Website Purpose
+
+Create a personal portfolio site that showcases the work and profiles of freelancers (designers, editors, animators, etc.) under my network. I use this site to:
+
+Show off other people’s talent to clients
+
+Match the right freelancer to client needs
+
+Track work progress and task assignments
+
+Add and manage portfolios and profiles
+
+
+
+---
+
+Design Inspiration
+
+Take style and layout ideas from:
+
+LinkedIn (for profile structure and details)
+
+Instagram (for showcasing media/reels)
+
+The Souled Store (for product-style layout and visual appeal)
+
+
+Use a clean, modern, responsive design with clear visuals and rounded cards. Use soft shadows, filter/sort options, and hover effects.
+
+
+---
+
+Pages
+
+1. Home / Work Showcase Page
+
+Grid layout for media (reels, animations, tshirt designs, logos, etc.)
+
+Each item = thumbnail + title + tag (e.g., "Video Editing", "3D Model", etc.)
+
+Search and filter bar (by category/type/artist name)
+
++ Add Work button (top-right or floating bottom-right icon)
+
+On click = modal or page to upload work with:
+
+Title, Description, Category, Tags, Upload File, Linked Profile
+
+
+
+2. Talent Profiles Page
+
+Layout similar to LinkedIn with cards or blocks per person
+
+Each profile contains:
+
+Name, Role (e.g., Graphic Designer), Skills, Tags
+
+LinkedIn URL, Email/Phone
+
+Star rating or skill badge (optional)
+
+View Profile (optional)
+
+
+Search and filter by role, skill, availability, rating
+
++ Add Profile button to register a new talent
+
+
+3. Project Tracker + My Profile
+
+Project cards or table view of ongoing/completed work
+
+Project title, Client name (optional), Assigned to, Deadline, Status (e.g., In Progress, Review, Completed)
+
+Progress bar or step indicator per task
+
+
+Show who is doing what
+
+My Profile shown at the top or side:
+
+Name, About Me, My Role, Contact Info, LinkedIn, Skills
+
+
+
+
+---
+
+Features Required
+
+Media upload and display (Firebase or Supabase preferred)
+
+Search and filter on Pages 1 and 2
+
+Add New Work / Add New Profile buttons with form modals
+
+Progress tracking UI elements (bars/steps)
+
+Basic authentication (optional) to add/edit
+
+Responsive design for mobile and desktop
+
+
+
+---
+
+Additional Suggestions to Improve Website
+
+1. Tag System – Allow tags like "Logo", "3D", "Poster" to help users filter easily.
+
+
+2. Categories – Define categories for each type of service (animation, design, video, etc.)
+
+
+3. Color Mode Switch – Light/Dark toggle for a more professional look.
+
+
+4. Hover Preview – Let users preview videos/images on hover.
+
+
+5. Auto Save / Drafts – For work or profiles being uploaded in parts.
+
+
+6. Backend Suggestions:
+
+Firebase: for login, file upload, database (easy and free tier available)
+
+Supabase: alternative with a SQL-style DB, good for structured data
+
+
+
+7. Page Transitions using Framer Motion for a modern feel.
+
+
+8. Export/Download – Option to export work list or profiles in CSV for record keeping.
+
+
+9. Admin-only Edit Rights – Allow only you to add/edit/delete.
+
+
