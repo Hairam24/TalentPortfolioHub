@@ -3,7 +3,7 @@ import WorkCard from "./work-card";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { WorkItem } from "@/lib/types";
-import { db } from "@/lib/firebase";
+import { db, mockWorkData } from "@/lib/firebase";
 import { collection, getDocs, query, where, orderBy, limit } from "firebase/firestore";
 
 interface WorkGridProps {
@@ -23,25 +23,50 @@ const WorkGrid = ({ category, tag, searchTerm }: WorkGridProps) => {
     const fetchWorks = async () => {
       setLoading(true);
       try {
-        let q = query(collection(db, "works"), orderBy("createdAt", "desc"), limit(itemsPerPage));
+        let workItems: WorkItem[] = [];
         
-        if (category) {
-          q = query(q, where("category", "==", category));
+        // Try to fetch from Firebase if db is available
+        if (db) {
+          try {
+            const worksCollection = collection(db, "works");
+            let q = query(worksCollection, orderBy("createdAt", "desc"), limit(itemsPerPage));
+            
+            if (category && category !== "all") {
+              q = query(q, where("category", "==", category));
+            }
+            
+            if (tag) {
+              q = query(q, where("tags", "array-contains", tag));
+            }
+            
+            const querySnapshot = await getDocs(q);
+            
+            querySnapshot.forEach((doc) => {
+              workItems.push({
+                id: doc.id,
+                ...doc.data(),
+              } as WorkItem);
+            });
+          } catch (firebaseError) {
+            console.error("Error fetching from Firebase:", firebaseError);
+            // Fall back to mock data if Firebase query fails
+            workItems = [...mockWorkData];
+          }
+        } else {
+          // Use mock data if db is not available
+          workItems = [...mockWorkData];
         }
         
-        if (tag) {
-          q = query(q, where("tags", "array-contains", tag));
+        // Filter mock data if needed
+        if (workItems.length > 0) {
+          if (category && category !== "all") {
+            workItems = workItems.filter(work => work.category === category);
+          }
+          
+          if (tag) {
+            workItems = workItems.filter(work => work.tags.includes(tag));
+          }
         }
-        
-        const querySnapshot = await getDocs(q);
-        const workItems: WorkItem[] = [];
-        
-        querySnapshot.forEach((doc) => {
-          workItems.push({
-            id: doc.id,
-            ...doc.data(),
-          } as WorkItem);
-        });
         
         // Filter by search term locally if provided
         const filteredWorks = searchTerm
@@ -54,10 +79,11 @@ const WorkGrid = ({ category, tag, searchTerm }: WorkGridProps) => {
           : workItems;
         
         setWorks(filteredWorks);
-        // Mocking total pages for now - in a real implementation we would get the count from Firebase
-        setTotalPages(Math.ceil(filteredWorks.length / itemsPerPage));
+        setTotalPages(Math.max(1, Math.ceil(filteredWorks.length / itemsPerPage)));
       } catch (error) {
         console.error("Error fetching works:", error);
+        setWorks([]);
+        setTotalPages(1);
       } finally {
         setLoading(false);
       }

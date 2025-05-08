@@ -11,7 +11,7 @@ interface ProjectFiltersProps {
 }
 
 const statuses = [
-  { value: "", label: "All Projects" },
+  { value: "all", label: "All Projects" },
   { value: "In Progress", label: "In Progress" },
   { value: "On Hold", label: "On Hold" },
   { value: "Completed", label: "Completed" },
@@ -19,7 +19,7 @@ const statuses = [
 ];
 
 const teamMembers = [
-  { value: "", label: "All Team Members" },
+  { value: "all", label: "All Team Members" },
   { value: "1", label: "Sarah Johnson" },
   { value: "2", label: "Michael Chen" },
   { value: "3", label: "Emily Rodriguez" },

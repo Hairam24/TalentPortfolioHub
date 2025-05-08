@@ -12,7 +12,7 @@ interface TalentFiltersProps {
 }
 
 const roles = [
-  { value: "", label: "All Roles" },
+  { value: "all", label: "All Roles" },
   { value: "Graphic Designer", label: "Graphic Designer" },
   { value: "Video Editor", label: "Video Editor" },
   { value: "3D Animator", label: "3D Animator" },
@@ -22,7 +22,7 @@ const roles = [
 ];
 
 const availabilityOptions = [
-  { value: "", label: "All Availability" },
+  { value: "all", label: "All Availability" },
   { value: "Available Now", label: "Available Now" },
   { value: "Limited Availability", label: "Limited Availability" },
   { value: "Unavailable", label: "Unavailable" },
